@@ -79,12 +79,24 @@ class Gan():
         # TODO : Compile the discriminator : choose Optimizer and loss function
         if self.DM:
             return self.DM
+
         optimizer = RMSprop(lr=0.0002, decay=6e-8)
         self.DM = Sequential()
         self.DM.add(self.discriminator())
         self.DM.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+
         return self.DM
 
     def adversarial_model(self):
         #TODO : Add generator + discriminator + choose optimizer and losse function
+        if self.AM:
+            return self.AM
+        
+        optimizer = RMSprop(lr=0.0004, clipvalue=1.0, decay=3e-8)
+
+        self.AM = Sequential()
+        self.AM.add(self.generator())
+        self.AM.add(self.discriminator())
+        self.AM.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+
         return self.AM
