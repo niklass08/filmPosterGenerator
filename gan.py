@@ -6,10 +6,11 @@ from keras.layers import BatchNormalization
 from keras.optimizers import Adam, RMSprop
 
 class Gan():
-    def __init__(self, img_rows = 28, img_cols = 28, channels = 1):
+    def __init__(self, img_rows = 28, img_cols = 28, channels = 1, filters = 32):
         self.img_rows = img_rows
         self.img_cols = img_cols
         self.channels = channels
+        self.filters = filters
         self.D = None   # discriminator
         self.G = None   # generator
         self.AM = None  # adversarial model
@@ -22,18 +23,18 @@ class Gan():
 
         self.D = Sequential()
         dropout = 0.5
-        output_size = 32
+        filters = self.filters
         input_shape = (self.img_rows, self.img_cols, self.channels)
-        self.D.add(Conv2D(output_size, 5, padding='same', data_format='channels_last', input_shape=input_shape, strides=2, activation='relu'))
+        self.D.add(Conv2D(filters, 5, padding='same', data_format='channels_last', input_shape=input_shape, strides=2, activation='relu'))
         self.D.add(Dropout(dropout))
 
-        self.D.add(Conv2D(output_size*2, 5, padding='same', strides=2, activation='relu'))
+        self.D.add(Conv2D(filters*2, 5, padding='same', strides=2, activation='relu'))
         self.D.add(Dropout(dropout))
 
-        self.D.add(Conv2D(output_size*4, 5, padding='same', strides=2, activation='relu'))
+        self.D.add(Conv2D(filters*4, 5, padding='same', strides=2, activation='relu'))
         self.D.add(Dropout(dropout))
 
-        self.D.add(Conv2D(output_size*8, 5, padding='same', strides=1, activation='relu'))
+        self.D.add(Conv2D(filters*8, 5, padding='same', strides=1, activation='relu'))
         self.D.add(Dropout(dropout))
 
         self.D.add(Flatten())
@@ -45,6 +46,33 @@ class Gan():
 
     def generator(self):
         # TODO : add generator topology
+        if self.G:
+            return self.G
+
+        self.G = Sequential()
+        dropout = 0.4
+        filters = 4*self.filters
+
+        self.G.add(Dense(int(filters * self.img_rows * self.img_cols / 16), input_dim=100, activation='relu'))
+        self.G.add(BatchNormalization(momentum=0.9))
+        self.G.add(Reshape((int(self.img_rows/4), int(self.img_cols/4), filters)))
+        self.G.add(Dropout(dropout))
+
+        self.G.add(UpSampling2D(size=(2,2)))
+        self.G.add(Conv2DTranspose(int(filters/2), 5, padding='same', activation='relu'))
+        self.G.add(BatchNormalization(momentum=0.9))
+
+        self.G.add(UpSampling2D(size=(2,2)))
+        self.G.add(Conv2DTranspose(int(filters/4), 5, padding='same', activation='relu'))
+        self.G.add(BatchNormalization(momentum=0.9))
+
+        self.G.add(Conv2DTranspose(int(filters/8), 5, padding='same', activation='relu'))
+        self.G.add(BatchNormalization(momentum=0.9))
+
+        self.G.add(Conv2DTranspose(self.channels, 5, padding='same', activation='sigmoid'))
+
+        self.G.summary()
+
         return self.G
 
     def discriminator_model(self):

@@ -24,5 +24,6 @@ class filmPosterGan():
 
             #TODO : Generate a new noise and train the adversarial model with label 1
 
-g = Gan()
+g = Gan(64,64,3)
 g.discriminator()
+g.generator()
