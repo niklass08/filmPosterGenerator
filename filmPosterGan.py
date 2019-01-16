@@ -26,7 +26,7 @@ class filmPosterGan():
         return data_set
 
     def train(self, train_steps=500, batch_size=256):
-        
+
         for i in range(train_steps):
             noise_input = np.random.uniform(-1.0, 1.0, size=[batch_size,100]) #Fake image will be generated from a noise TODO : make sure the noise shape is OK
             # TODO : Generate fake images using the noise and pick true images from the dataset
