@@ -1,45 +1,10 @@
 import numpy as np
 import time
 from tensorflow.examples.tutorials.mnist import input_data
-
-from keras.models import Sequential
-from keras.layers import Dense, Activation, Flatten, Reshape
-from keras.layers import Conv2D, Conv2DTranspose, UpSampling2D
-from keras.layers import LeakyReLU, Dropout
-from keras.layers import BatchNormalization
-from keras.optimizers import Adam, RMSprop
-
 from keras.preprocessing.image import ImageDataGenerator
 from random import randint
-
 import matplotlib.pyplot as plt
-
-
-class Gan():
-    def __init__(self, img_rows = 28, img_cols = 28, channels = 1):
-        self.img_rows = img_rows
-        self.img_cols = img_cols
-        self.channels = channels
-        self.D = None   # discriminator
-        self.G = None   # generator
-        self.AM = None  # adversarial model
-        self.DM = None  # discriminator model
-    
-    def discriminator(self):
-        # TODO : add discriminator topology
-        return self.D
-    
-    def generator(self):
-        # TODO : add generator topology
-        return self.G
-    
-    def discriminator_model(self):
-        # TODO : Compile the discriminator : choose Optimizer and loss function
-        return self.DM
-
-    def adversarial_model(self):
-        #TODO : Add generator + discriminator + choose optimizer and losse function
-        return self.AM
+from gan import Gan
 
 class filmPosterGan():
     def __init__(self, rows, cols, channels, dataFolder):
@@ -94,3 +59,6 @@ if grayscale:
 else:
     plt.imshow(image)
 plt.show()
+
+g = Gan()
+g.discriminator()
