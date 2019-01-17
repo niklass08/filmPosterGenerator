@@ -6,8 +6,9 @@ from filmPosterGan import filmPosterGan
 from gan import Gan
 
 grayscale = False
-fpg = filmPosterGan(rows = 64, cols = 64, channels = 3, dataFolder = "./data")
-data_gen = fpg.load_data(grayscale=False)
+channels = 1 if grayscale else 3
+fpg = filmPosterGan(rows = 64, cols = 64, channels = channels, dataFolder = "./data")
+data_gen = fpg.load_data(grayscale=grayscale)
 print(data_gen)
 (x, y) = data_gen.next()
 print(x.shape)
@@ -27,4 +28,4 @@ else:
 plt.show()
 
 
-fpg.train(train_steps=20000, batch_size=16)
+fpg.train(train_steps=2000, batch_size=16, save_interval=100)
