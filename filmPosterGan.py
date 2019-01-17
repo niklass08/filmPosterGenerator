@@ -4,6 +4,17 @@ from gan import Gan
 
 from random import randint
 import matplotlib.pyplot as plt
+
+
+import cv2
+import numpy as np
+from PIL import Image
+
+def changeColorSpace(image):
+    image = np.array(image)
+    hsv_image = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
+    return Image.fromarray(hsv_image)
+
 class filmPosterGan():
     def __init__(self, rows, cols, channels, dataFolder):
         self.img_rows = rows
@@ -20,7 +31,9 @@ class filmPosterGan():
         self.generator = self.gan.generator()
     def load_data(self, grayscale = True):
 
-        dataGen = ImageDataGenerator()
+        dataGen = ImageDataGenerator(
+            #preprocessing_function=changeColorSpace
+        )
         self.posters = dataGen.flow_from_directory(
             self.dataFolder,
             target_size = (self.img_rows, self.img_cols),
@@ -30,7 +43,7 @@ class filmPosterGan():
         )
         return self.posters
 
-    def train(self, train_steps=500, batch_size=32, save_interval = 50):
+    def train(self, train_steps=500, batch_size=32, save_interval = 200):
         
         for i in range(train_steps):
             noise_input = np.random.uniform(-1.0, 1.0, size=[batch_size,100]) #Fake image will be generated from a noise TODO : make sure the noise shape is OK

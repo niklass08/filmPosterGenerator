@@ -27,4 +27,4 @@ else:
 plt.show()
 
 
-fpg.train(train_steps=3000, batch_size=16)
+fpg.train(train_steps=20000, batch_size=16)
