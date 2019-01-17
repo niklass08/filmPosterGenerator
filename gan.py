@@ -26,6 +26,7 @@ class Gan():
         filters = self.filters
         input_shape = (self.img_rows, self.img_cols, self.channels)
         self.D.add(Conv2D(filters, 5, padding='same', data_format='channels_last', input_shape=input_shape, strides=2, activation='relu'))
+        self.D.add(LeakyReLU(alpha=0.2))
         self.D.add(Dropout(dropout))
 
         self.D.add(Conv2D(filters*2, 5, padding='same', strides=2, activation='relu'))

@@ -24,7 +24,7 @@ class filmPosterGan():
         self.posters = dataGen.flow_from_directory(
             self.dataFolder,
             target_size = (self.img_rows, self.img_cols),
-            batch_size = 32,
+            batch_size = 16,
             class_mode = 'categorical',
             color_mode = 'grayscale' if grayscale else 'rgb'
         )
@@ -53,17 +53,19 @@ class filmPosterGan():
                 x = np.concatenate((images_real ,images_fake))
                 y = np.ones([2 * batch_size, 1])
                 y[batch_size:,:] = 0
+            
             print(y.shape)
 
             d_loss = self.discriminator.train_on_batch(x,y)
             #TODO : Generate a new noise and train the adversarial model with label 1
             noise_input = np.random.uniform(-1.0, 1.0, size=[batch_size,100]) #Fake image will be generated from a noise TODO : make sure the noise shape is OK
             y = np.ones([batch_size, 1])
-
-            a_loss = self.adversarial.train_on_batch(noise_input, y)
+            if(d_loss[1] > 0.7):
+                a_loss = self.adversarial.train_on_batch(noise_input, y)
 
             log_mesg = "%d: [D loss: %f, acc: %f]" % (i, d_loss[0], d_loss[1])
-            log_mesg = "%s  [A loss: %f, acc: %f]" % (log_mesg, a_loss[0], a_loss[1])
+            if(d_loss[1] > 0.7):
+                log_mesg = "%s  [A loss: %f, acc: %f]" % (log_mesg, a_loss[0], a_loss[1])
             print(log_mesg)
             if (i+1)%save_interval==0:
                     self.plot_images(save2file=True, samples=noise_input.shape[0],\
@@ -81,7 +83,7 @@ class filmPosterGan():
         print("images[0] shape")
         print(images.shape[0])
         for i in range(images.shape[0]):
-            plt.subplot(4, 8, i+1)
+            plt.subplot(4, 4, i+1)
             image = images[i, :, :, :]
             if(self.channels == 1):
                 image = np.reshape(image, [self.img_rows, self.img_cols])

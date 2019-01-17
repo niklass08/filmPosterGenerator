@@ -6,16 +6,16 @@ from filmPosterGan import filmPosterGan
 from gan import Gan
 
 grayscale = False
-fpg = filmPosterGan(rows = 28, cols = 28, channels = 3, dataFolder = "./data")
+fpg = filmPosterGan(rows = 64, cols = 64, channels = 3, dataFolder = "./data")
 data_gen = fpg.load_data(grayscale=False)
 print(data_gen)
 (x, y) = data_gen.next()
 print(x.shape)
 
-i = randint(1,7)
+i = randint(1,3)
 print(x[i].shape)
 image = x[i]
-if grayscale: image = np.reshape(image, (28, 28))
+if grayscale: image = np.reshape(image, (64, 64))
 print("Dimension of input image=",np.shape(image))
 
 #plt.imshow(image.transpose(2,1,0))
@@ -27,4 +27,4 @@ else:
 plt.show()
 
 
-fpg.train(train_steps=2000, batch_size=32)
+fpg.train(train_steps=3000, batch_size=16)

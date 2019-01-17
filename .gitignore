@@ -3,3 +3,4 @@ SampleMoviePosters.zip
 mnistGan.py
 data
 mnist
+*.png
