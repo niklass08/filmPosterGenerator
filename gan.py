@@ -23,22 +23,22 @@ class Gan():
 
         self.D = Sequential()
         dropout = 0.4
-        filters = self.filters
+        filters = 128
         input_shape = (self.img_rows, self.img_cols, self.channels)
-        self.D.add(Conv2D(filters, 5, padding='same', data_format='channels_last', input_shape=input_shape, strides=2))
-        self.D.add(LeakyReLU(alpha=0.2))
+        self.D.add(Conv2D(filters, 5, padding='same', data_format='channels_last', input_shape=input_shape, strides=1))
+        self.D.add(LeakyReLU(alpha=0.1))
         self.D.add(Dropout(dropout))
 
-        self.D.add(Conv2D(filters*2, 5, padding='same', strides=2))
-        self.D.add(LeakyReLU(alpha=0.2))
+        self.D.add(Conv2D(filters, 5, padding='same', strides=2))
+        self.D.add(LeakyReLU(alpha=0.1))
         self.D.add(Dropout(dropout))
 
-        self.D.add(Conv2D(filters*4, 5, padding='same', strides=2))
-        self.D.add(LeakyReLU(alpha=0.2))
+        self.D.add(Conv2D(filters, 5, padding='same', strides=2))
+        self.D.add(LeakyReLU(alpha=0.1))
         self.D.add(Dropout(dropout))
 
-        self.D.add(Conv2D(filters*8, 5, padding='same', strides=2))
-        self.D.add(LeakyReLU(alpha=0.2))
+        self.D.add(Conv2D(filters, 5, padding='same', strides=2))
+        self.D.add(LeakyReLU(alpha=0.1))
         self.D.add(Dropout(dropout))
 
         self.D.add(Flatten())
@@ -55,32 +55,47 @@ class Gan():
 
         self.G = Sequential()
         dropout = 0.3
-        filters = 4*self.filters
+        filters = 128
 
-        self.G.add(Dense(int(filters * self.img_rows * self.img_cols / 4), input_dim=100))
+        self.G.add(Dense(128*16*16, input_dim=100))
         self.G.add(BatchNormalization(momentum=0.9))
-        self.D.add(LeakyReLU(alpha=0.2))
+        self.G.add(LeakyReLU(alpha=0.1))
         self.G.add(Reshape((int(self.img_rows/2), int(self.img_cols/2), filters)))
+        
+        # self.G.add(Dropout(dropout))
+
+        self.G.add(Conv2D(filters, kernel_size = 5, padding='same', strides=1))
+        self.G.add(LeakyReLU(alpha=0.1))
+        self.G.add(BatchNormalization(momentum=0.9))
+
+        # self.G.add(Dropout(dropout))
+
+        #self.G.add(UpSampling2D(size=(2,2)))
+        self.G.add(Conv2DTranspose(filters, 4, padding='same', strides=2))
+        self.G.add(BatchNormalization(momentum=0.9))
+
         #self.G.add(Dropout(dropout))
 
-        self.G.add(Conv2D(filters, 5, padding='same', strides=1))
-        self.D.add(LeakyReLU(alpha=0.2))
-        self.G.add(BatchNormalization(momentum=0.9))
-
         #self.G.add(UpSampling2D(size=(2,2)))
-        self.G.add(Conv2DTranspose(filters, 5, padding='same', strides=2))
+        self.G.add(Conv2D(filters, kernel_size = 5, padding='same', strides=1))
+        self.G.add(LeakyReLU(alpha=0.1))
         self.G.add(BatchNormalization(momentum=0.9))
 
-        #self.G.add(UpSampling2D(size=(2,2)))
-        self.G.add(Conv2D(filters, 5, padding='same', strides=1))
-        self.D.add(LeakyReLU(alpha=0.2))
+        self.G.add(Conv2D(filters, kernel_size = 5, padding='same', strides=1))
+        self.G.add(LeakyReLU(alpha=0.1))
         self.G.add(BatchNormalization(momentum=0.9))
 
-        self.G.add(Conv2D(filters, 5, padding='same', strides=1))
-        self.D.add(LeakyReLU(alpha=0.2))
+        self.G.add(Conv2D(int(filters/2), kernel_size = 3, padding='same', strides=1))
+        self.G.add(LeakyReLU(alpha=0.1))
         self.G.add(BatchNormalization(momentum=0.9))
 
-        self.G.add(Conv2D(self.channels, 5, padding='same', activation='sigmoid'))
+        self.G.add(Conv2D(int(filters/4), kernel_size = 3, padding='same', strides=1))
+        self.G.add(LeakyReLU(alpha=0.1))
+        self.G.add(BatchNormalization(momentum=0.9))
+
+        # self.G.add(Dropout(dropout))
+
+        self.G.add(Conv2D(self.channels, 5, padding='same', activation='tanh'))
 
         self.G.summary()
 
@@ -91,7 +106,7 @@ class Gan():
         if self.DM:
             return self.DM
 
-        optimizer = RMSprop(lr=0.0002, decay=6e-8)
+        optimizer = Adam(0.0002, 0.5)
         self.DM = Sequential()
         self.DM.add(self.discriminator())
         self.DM.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
@@ -103,7 +118,7 @@ class Gan():
         if self.AM:
             return self.AM
 
-        optimizer = RMSprop(lr=0.0004, clipvalue=1.0, decay=3e-8)
+        optimizer = Adam(0.0002, 0.5)
         disc = self.discriminator()
         disc.trainable = False
         self.AM = Sequential()
