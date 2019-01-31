@@ -1,6 +1,9 @@
 import numpy as np
 from keras.preprocessing.image import ImageDataGenerator
 from keras.preprocessing import image
+from keras.models import Model
+from keras.models import load_model
+
 
 from gan import Gan
 
@@ -33,6 +36,20 @@ class filmPosterGan():
         self.discriminator = self.gan.discriminator_model()
         self.adversarial = self.gan.adversarial_model()
         self.generator = self.gan.generator()
+
+
+    def generate_image(self, nb_images = 1, folder='./', model_name='./default.h5'):
+        self.generator = load_model(model_name)
+        for k in range(nb_images):
+            noise = self.generate_noise(1,100)
+            img_gen = self.generator.predict(noise)
+            img = np.reshape(img_gen,(32,32,3))
+            plt.imshow(img)
+            plt.axis('off')
+            filename = folder + '/poster_' + str(i)
+            plt.savefig(filename)
+            plt.close('all')
+
     def load_data(self, grayscale = True):
 
         dataGen = ImageDataGenerator(
@@ -65,7 +82,7 @@ class filmPosterGan():
                 count += 1
         plt.show()
 
-    def train(self, N_EPOCHS=100, batch_size=16, save_interval = 200, NB_DATA = 3866):
+    def train(self, N_EPOCHS=100, batch_size=16, save_interval = 200, NB_DATA = 3866, model_name = './default.h5'):
         
 
         N_EPOCHS = 100
@@ -115,50 +132,7 @@ class filmPosterGan():
 
             print('  Epoch: {}, Generator Loss: {}, Discriminator Loss: {}'.format(epoch+1, 0, 0))
             self.show_imgs("epoch" + str(epoch))
-        # for i in range(train_steps):
-        #     noise_input = np.random.uniform(0, 1.0, size=[batch_size,100]) #Fake image will be generated from a noise TODO : make sure the noise shape is OK
-        #     # TODO : Generate fake images using the noise and pick true images from the dataset
-        #     # train the discriminator on the true and fake images (2 * batch_size) label 0/1
-
-        #     (images_real, labels_real) = self.posters.next()
-        #     images_fake = self.gan.generator().predict(noise_input)
-
-        #     x = np.concatenate((images_real ,images_fake))
-        #     y = np.zeros([2 * batch_size, 1]) + np.random.uniform(low=0.0, high=0.1, size=(2 * batch_size, 1))
-        #     y[batch_size:,:] = 1 + np.random.uniform(low=0.0, high=0.1, size=(batch_size, 1))
-
-        #     print(x.shape)
-        #     if(x.shape[0] != 2*batch_size):
-        #         self.posters.reset()
-        #         (images_real, labels_real) = self.posters.next()
-        #         images_fake = self.gan.generator().predict(noise_input)
-
-        #         x = np.concatenate((images_real ,images_fake))
-        #         y = np.zeros([2 * batch_size, 1]) + np.random.uniform(low=0.0, high=0.1, size=(2 * batch_size, 1))
-        #         y[batch_size:,:] = 1 + np.random.uniform(low=0.0, high=0.1, size=(batch_size, 1))
-            
-        #     noise_prop = 0.05 # Randomly flip 5% of labels
-        #     flipped_idx = np.random.choice(np.arange(len(y)), size=int(noise_prop*len(y)))
-        #     y[flipped_idx] = 1 - y[flipped_idx]
-
-
-        #     print(y.shape)
-
-        #     d_loss = self.discriminator.train_on_batch(x,y)
-        #     #TODO : Generate a new noise and train the adversarial model with label 1
-        #     noise_input = np.random.uniform(-1.0, 1.0, size=[batch_size,100]) #Fake image will be generated from a noise TODO : make sure the noise shape is OK
-        #     y = np.ones([batch_size, 1])
-        #     if(d_loss[1] > 0.65):
-        #         a_loss = self.adversarial.train_on_batch(noise_input, y)
-
-        #     log_mesg = "%d: [D loss: %f, acc: %f]" % (i, d_loss[0], d_loss[1])
-        #     if(d_loss[1] > 0.65):
-        #         log_mesg = "%s  [A loss: %f, acc: %f]" % (log_mesg, a_loss[0], a_loss[1])
-        #     print(log_mesg)
-        #     if (i+1)%save_interval==0:
-        #             self.plot_images(save2file=True, samples=noise_input.shape[0],\
-        #                 noise=noise_input, step=(i+1))
-    
+        model.save(model_name)
     def plot_images(self, save2file=False, samples=16, noise=None, step=0):
         filename = 'posters.png'
         if noise is None:
