@@ -61,7 +61,7 @@ class Gan():
         self.G.add(BatchNormalization(momentum=0.9))
         self.D.add(LeakyReLU(alpha=0.2))
         self.G.add(Reshape((int(self.img_rows/2), int(self.img_cols/2), filters)))
-        #self.G.add(Dropout(dropout))
+        self.G.add(Dropout(dropout))
 
         self.G.add(Conv2D(filters, 5, padding='same', strides=1))
         self.D.add(LeakyReLU(alpha=0.2))
@@ -80,7 +80,7 @@ class Gan():
         self.D.add(LeakyReLU(alpha=0.2))
         self.G.add(BatchNormalization(momentum=0.9))
 
-        self.G.add(Conv2D(self.channels, 5, padding='same', activation='sigmoid'))
+        self.G.add(Conv2D(self.channels, 5, padding='same', activation='tanh'))
 
         self.G.summary()
 
@@ -91,7 +91,7 @@ class Gan():
         if self.DM:
             return self.DM
 
-        optimizer = RMSprop(lr=0.0002, decay=6e-8)
+        optimizer = RMSprop(lr=0.0002, decay=1e-4)
         self.DM = Sequential()
         self.DM.add(self.discriminator())
         self.DM.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])

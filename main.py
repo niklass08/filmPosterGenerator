@@ -7,7 +7,7 @@ from gan import Gan
 
 grayscale = False
 channels = 1 if grayscale else 3
-fpg = filmPosterGan(rows = 64, cols = 64, channels = channels, dataFolder = "./data")
+fpg = filmPosterGan(rows = 32, cols = 22, channels = channels, dataFolder = "./data")
 data_gen = fpg.load_data(grayscale=grayscale)
 print(data_gen)
 (x, y) = data_gen.next()
