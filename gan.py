@@ -61,7 +61,7 @@ class Gan():
         self.G.add(BatchNormalization(momentum=0.9))
         self.G.add(LeakyReLU(alpha=0.1))
         self.G.add(Reshape((int(self.img_rows/2), int(self.img_cols/2), filters)))
-        
+
         # self.G.add(Dropout(dropout))
 
         self.G.add(Conv2D(filters, kernel_size = 5, padding='same', strides=1))
